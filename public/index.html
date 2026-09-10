@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teamsaathi — Internal Portal & Innovation Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- STICKY TOP ANNOUNCEMENT BANNER -->
+  <div id="stickyAnnouncement" class="announcement-ticker" style="display: none;">
+    <div class="ticker-left">
+      <span class="ticker-badge" id="tickerBadge">Notice</span>
+      <span class="ticker-text" id="tickerText">Loading latest update…</span>
+    </div>
+    <div class="ticker-right">
+      <button class="ticker-link-btn" onclick="switchTab('announcements')">View All Updates →</button>
+    </div>
+  </div>
+
+  <!-- MAIN TOPBAR -->
+  <header class="topbar">
+    <div class="brand" onclick="switchTab('links')">
+      <div class="brand-crest">⚡</div>
+      <div class="brand-text">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h1 class="brand-title">Teamsaathi</h1>
+          <span class="brand-tag">Portal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER NAVIGATION TABS -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="links" onclick="switchTab('links', this)">🔗 Links</button>
+      <button class="nav-tab" data-tab="leaderboard" onclick="switchTab('leaderboard', this)">🏆 Best Ideas</button>
+      <button class="nav-tab" data-tab="announcements" onclick="switchTab('announcements', this)">📢 Updates</button>
+      <button class="nav-tab" data-tab="chat" onclick="switchTab('chat', this)">💬 Team Chat</button>
+    </nav>
+
+    <!-- RIGHT USER / ADMIN CONTROLS -->
+    <div class="topbar-right">
+
+      <!-- PERSONAL WINDOW (CONFIDENTIAL & PROTECTED) -->
+      <button class="btn-private-tracker" id="personalWindowBtn" onclick="handlePersonalWindowClick()" title="Access your confidential personal window, bottlenecks, and private documents">
+        <span>👤</span> Personal Window <span class="badge-count" id="personalWindowBadge" style="display: none;">0</span>
+      </button>
+
+      <!-- PASSWORD-ONLY ADMIN BUTTON -->
+      <button class="btn-admin-access" id="adminButton" onclick="handleAdminButtonClick()">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <span id="adminBtnText">Admin Area</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN APP WRAPPER -->
+  <main class="main-content">
+
+    <!-- 1. LINKS DIRECTORY VIEW -->
+    <section id="view-links" class="tab-view active">
+      <div class="view-header">
+        <div>
+          <h2>Organization Links & Tools Directory</h2>
+          <p>Quick access to all official forms, platforms, sheets, and department platforms.</p>
+        </div>
+        <div id="adminLinkActions" style="display: none;">
+          <button class="btn-primary" onclick="openAddLinkModal()">+ Add New Link</button>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="linkSearchInput" placeholder="Search forms, platforms, reports by name or tag…" oninput="renderLinks()">
+        </div>
+        <div class="filter-pills" id="linkCategoryPills">
+          <button class="pill active" data-filter="all" onclick="setLinkFilter(this, 'cat')">All Links</button>
+          <button class="pill" data-filter="form" onclick="setLinkFilter(this, 'cat')">📝 Forms</button>
+          <button class="pill" data-filter="platform" onclick="setLinkFilter(this, 'cat')">🌐 Platforms</button>
+          <button class="pill" data-filter="report" onclick="setLinkFilter(this, 'cat')">📊 Reports</button>
+          <button class="pill" data-filter="tool" onclick="setLinkFilter(this, 'cat')">⚙️ Tools</button>
+        </div>
+      </div>
+
+      <div class="dept-pills-row" id="linkDeptPills">
+        <!-- Injected via JS -->
+      </div>
+
+      <div class="cards-grid" id="linksGrid">
+        <div class="empty-state"><p>Loading company links…</p></div>
+      </div>
+    </section>
+
+    <!-- 2. BEST IDEAS LEADERBOARD & PODIUM -->
+    <section id="view-leaderboard" class="tab-view">
+      <div class="view-header">
+        <div>
+          <h2>Innovation Podium & Department Champions</h2>
+          <p>Recognizing the top crowdsourced ideas for the active innovation cycle.</p>
+        </div>
+        <div id="adminPollControls" style="display: none;">
+          <button class="btn-secondary" onclick="togglePollStatus()" id="btnTogglePoll">Lock / Close Voting</button>
+        </div>
+      </div>
+
+      <!-- VISUAL PODIUM -->
+      <div class="podium-grid" id="podiumContainer">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div style="margin-top: 40px;">
+        <h3 style="font-family: var(--font-head); font-size: 24px; margin-bottom: 16px;">All Department Champions</h3>
+        <div class="cards-grid" id="deptChampionsGrid">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. COMPANY UPDATES (RENAMED & SIMPLIFIED) -->
+    <section id="view-announcements" class="tab-view">
+      <div class="view-header">
+        <div>
+          <h2>Company Updates</h2>
+          <p>Important company updates, milestones, and celebration notices.</p>
+        </div>
+        <div id="adminAnnounceActions" style="display: none;">
+          <button class="btn-primary" onclick="openAddAnnouncementModal()">+ Post Update</button>
+        </div>
+      </div>
+
+      <div class="announcements-list" id="announcementsList">
+        <div class="empty-state"><p>Loading company updates…</p></div>
+      </div>
+    </section>
+
+    <!-- 5. TEAM CHAT VIEW -->
+    <section id="view-chat" class="tab-view">
+      <div class="view-header">
+        <div>
+          <h2>Internal Team Chat & Discussion Feed</h2>
+          <p>Instant collaboration, praise for great ideas, and cross-department discussions.</p>
+        </div>
+      </div>
+
+      <div class="chat-container">
+        <!-- HASHTAG ACTIVE FILTER BANNER -->
+        <div id="chatFilterBanner" class="chat-filter-banner" style="display: none;">
+          <span>Filtering messages by <b id="activeChatTag">#tag</b></span>
+          <button type="button" class="btn-tag-clear" onclick="clearChatTagFilter()">✕ Show All Messages</button>
+        </div>
+
+        <div class="chat-stream" id="chatStream">
+          <div class="empty-state"><p>Loading chat stream…</p></div>
+        </div>
+
+        <!-- QUICK HASHTAG & MENTION CHIPS -->
+        <div class="chat-quick-tags" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+          <span style="font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-right: 4px;">Quick Tags:</span>
+          <button type="button" class="quick-tag-chip" onclick="insertChatTag('#idea')">#idea</button>
+          <button type="button" class="quick-tag-chip" onclick="insertChatTag('#help')">#help</button>
+          <button type="button" class="quick-tag-chip" onclick="insertChatTag('#update')">#update</button>
+          <button type="button" class="quick-tag-chip" onclick="insertChatTag('#kudos')">#kudos</button>
+          <span style="font-size: 11px; font-weight: 600; color: var(--lake); margin-left: 8px; margin-right: 4px;">@ Tag Colleague:</span>
+          <div id="chatQuickMentions" style="display: inline-flex; gap: 4px; flex-wrap: wrap;">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- MENTION AUTOCOMPLETE POPUP & INPUT -->
+        <div style="position: relative;">
+          <div id="chatMentionDropdown" class="chat-mention-dropdown" style="display: none;"></div>
+          <form class="chat-input-bar" onsubmit="sendChatMessage(event)">
+            <input type="text" id="chatInputMessage" placeholder="Type a message, @mention a colleague, or use #tags…" autocomplete="off" oninput="handleChatInput(event)" onkeydown="handleChatKeyDown(event)">
+            <button type="submit" class="btn-primary" style="padding: 11px 24px;">Send ↵</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. ADMIN CONSOLE VIEW (PROTECTED) -->
+    <section id="view-admin" class="tab-view">
+      <div class="view-header">
+        <div>
+          <h2>Administrator Control Console</h2>
+          <p>Full administrative governance for Links, Polling Cycles, Team Roster, and Admin Passwords.</p>
+        </div>
+        <button class="btn-secondary" onclick="adminLogout()">Sign Out Admin</button>
+      </div>
+
+      <!-- ADMIN SUB-NAVIGATION -->
+      <div class="admin-subnav" id="adminSubnav">
+        <button class="admin-subtab active" data-module="links" onclick="switchAdminTab('admin-links', this)">🔗 Links Manager</button>
+        <button class="admin-subtab" data-module="announcements" onclick="switchAdminTab('admin-updates', this)">📢 Updates</button>
+        <button class="admin-subtab" data-module="bottlenecks" onclick="switchAdminTab('admin-bottlenecks', this)">🚧 Bottlenecks Review</button>
+        <button class="admin-subtab" data-module="departments" onclick="switchAdminTab('admin-departments', this)">🏢 Departments</button>
+        <button class="admin-subtab" data-module="polls" onclick="switchAdminTab('admin-polls', this)">🗳️ Poll Controller</button>
+        <button class="admin-subtab" data-module="roster" onclick="switchAdminTab('admin-roster', this)">👥 Team Directory</button>
+        <button class="admin-subtab" data-module="roster" onclick="switchAdminTab('admin-personal-dir', this)">👤 Personal Windows & PINs</button>
+        <button class="admin-subtab" data-module="passwords" onclick="switchAdminTab('admin-passwords', this)">🔑 Admin Passwords & Roles</button>
+      </div>
+
+      <!-- ADMIN SUB-TAB 1: LINKS MANAGER -->
+      <div id="admin-links" class="admin-tab-content active" data-module="links">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3 style="font-family: var(--font-head); font-size: 22px;">Manage Directory Links</h3>
+          <button class="btn-primary" onclick="openAddLinkModal()">+ Add New Link</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Icon</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Department</th>
+                <th>URL</th>
+                <th>Tags</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminLinksTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB-TAB 2: UPDATES / ANNOUNCEMENTS MANAGER -->
+      <div id="admin-updates" class="admin-tab-content" data-module="announcements">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h3 style="font-family: var(--font-head); font-size: 22px;">Manage Company Updates</h3>
+            <p style="font-size: 13px; color: var(--ink-muted);">Publish announcements, milestone celebrations, and urgent bulletins.</p>
+          </div>
+          <button class="btn-primary" onclick="openAddAnnouncementModal()">+ Post New Update</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Priority</th>
+                <th>Title & Content</th>
+                <th>Department</th>
+                <th>Sticky</th>
+                <th>Date</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminAnnounceTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB-TAB 3: CONFIDENTIAL BOTTLENECK REVIEW SUITE -->
+      <div id="admin-bottlenecks" class="admin-tab-content" data-module="bottlenecks">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h3 style="font-family: var(--font-head); font-size: 22px;">Confidential Operational Bottlenecks</h3>
+            <p style="font-size: 13px; color: var(--ink-muted);">Review reported friction, inspect 3 solutions, advance status, and provide feedback directly to submitters.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <select id="adminBottleneckStatusFilter" onchange="renderAdminBottlenecks()" style="padding: 7px 12px; font-size: 12.5px; border-radius: 6px; border: 1px solid var(--border);">
+              <option value="all">All Statuses</option>
+              <option value="Under Review">Under Review</option>
+              <option value="In Discussion">In Discussion</option>
+              <option value="Solution Linked">Solution Linked</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Severity</th>
+                <th>Department</th>
+                <th>Title & Submitter</th>
+                <th>3 Solutions</th>
+                <th>Status</th>
+                <th>Admin Notes</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminBottlenecksTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB-TAB 4: POLL CONTROLLER -->
+      <div id="admin-polls" class="admin-tab-content" data-module="polls">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h3 style="font-family: var(--font-head); font-size: 22px;">Voting Poll & Innovation Cycles</h3>
+            <p style="font-size: 13px; color: var(--ink-muted);">Start new innovation polls, toggle voting open/closed, or declare department champions.</p>
+          </div>
+          <button class="btn-primary" onclick="openStartPollModal()">+ Start New Poll</button>
+        </div>
+        <div id="adminPollCard" style="background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px;">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- ADMIN SUB-TAB 5: TEAM DIRECTORY -->
+      <div id="admin-roster" class="admin-tab-content" data-module="roster">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h3 style="font-family: var(--font-head); font-size: 22px;">Team Members Directory</h3>
+            <p style="font-size: 13px; color: var(--ink-muted);">Manage employee profiles used for frictionless zero-login identity selection.</p>
+          </div>
+          <button class="btn-primary" onclick="openAddMemberModal()">+ Add Team Member</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Member Name</th>
+                <th>Department</th>
+                <th>Role Title</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminRosterTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB-TAB 6: PERSONAL WINDOWS & PASSKEYS DIRECTORY -->
+      <div id="admin-personal-dir" class="admin-tab-content" data-module="roster">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="font-family: var(--font-head); font-size: 22px;">Personal Windows Directory & Member Passkeys</h3>
+            <p style="font-size: 13px; color: var(--ink-muted);">Manage member passkeys, inspect plain PINs with show/hide toggle, attach private resources, and copy direct access links.</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="adminPersonalSearch" placeholder="Filter member name or dept..." oninput="filterAdminPersonalDir()" style="padding: 8px 14px; font-size: 13px; border-radius: 6px; border: 1.5px solid var(--border); width: 240px;">
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Member Name</th>
+                <th>Department & Role</th>
+                <th>Personal Passkey / PIN</th>
+                <th>Personal Links</th>
+                <th>Direct Redirect Link</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminPersonalTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB-TAB 7: ADMIN PASSWORDS & ROLES (MULTI-ADMIN) -->
+      <div id="admin-passwords" class="admin-tab-content" data-module="passwords">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h3 style="font-family: var(--font-head); font-size: 22px;">Admin Passkey & Role Permissions</h3>
+            <p style="font-size: 13px; color: var(--ink-muted);">Create additional admin passwords, set module permissions, toggle password visibility, or reset passkeys.</p>
+          </div>
+          <button class="btn-primary" onclick="openAddAdminPasswordModal()">+ Create Another Admin Password</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Admin Name / Label</th>
+                <th>Role Permissions</th>
+                <th>Password</th>
+                <th>Created At</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminPasswordsTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB-TAB 8: DEPARTMENTS MANAGER -->
+      <div id="admin-departments" class="admin-tab-content" data-module="departments">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h3 style="font-family: var(--font-head); font-size: 22px;">Organization Departments</h3>
+            <p style="font-size: 13px; color: var(--ink-muted);">Add, edit, or customize company departments across the portal.</p>
+          </div>
+          <button class="btn-primary" onclick="openAddDepartmentModal()">+ Add New Department</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Icon</th>
+                <th>Department Name</th>
+                <th>Code</th>
+                <th>Theme Color</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminDepartmentsTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- MODALS -->
+  <!-- ============================================================ -->
+
+  <!-- 1. PASSWORD-ONLY ADMIN LOGIN MODAL -->
+  <div class="modal-overlay" id="adminLoginModal">
+    <div class="modal-box" style="max-width: 420px;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div class="brand-crest" style="margin: 0 auto 12px; width: 48px; height: 48px; font-size: 22px;">🔒</div>
+        <h3 class="modal-title">Admin Area</h3>
+        <p class="modal-sub">Enter admin password to unlock management controls.</p>
+      </div>
+      <div class="form-group">
+        <label>Admin Password</label>
+        <input type="password" id="adminLoginPasswordInput" placeholder="Enter admin password…" onkeydown="if(event.key==='Enter') executeAdminLogin()">
+      </div>
+      <div class="modal-actions" style="flex-direction: column;">
+        <button class="btn-primary" style="width: 100%; padding: 13px;" onclick="executeAdminLogin()">Sign In →</button>
+        <button class="btn-secondary" style="width: 100%;" onclick="closeModal('adminLoginModal')">Cancel</button>
+      </div>
+      <p style="text-align: center; font-size: 11.5px; color: var(--ink-muted); margin-top: 14px;">Default Initial Password: <b>admin123</b> (Changeable inside)</p>
+    </div>
+  </div>
+
+  <!-- 2. ZERO-LOGIN EMPLOYEE IDENTITY MODAL -->
+  <div class="modal-overlay" id="identityModal">
+    <div class="modal-box" style="max-width: 460px;">
+      <h3 class="modal-title">Select Your Identity</h3>
+      <p class="modal-sub">Pick your name from the directory. Your choice is remembered for voting and chatting.</p>
+      <div class="form-group">
+        <label>Choose From Company Directory</label>
+        <select id="identityMemberSelect" onchange="handleIdentitySelectChange()">
+          <!-- Injected via JS -->
+        </select>
+      </div>
+      <div style="text-align: center; margin: 12px 0; color: var(--ink-muted); font-size: 12px;">— OR ENTER MANUALLY —</div>
+      <div class="form-group">
+        <label>Your Name</label>
+        <input type="text" id="identityCustomName" placeholder="e.g. Rahul Sharma">
+      </div>
+      <div class="form-group">
+        <label>Your Department</label>
+        <select id="identityCustomDept">
+          <!-- Injected via JS -->
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('identityModal')">Cancel</button>
+        <button class="btn-primary" onclick="saveUserIdentity()">Confirm Identity</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ADD / EDIT LINK MODAL -->
+  <div class="modal-overlay" id="linkModal">
+    <div class="modal-box">
+      <h3 class="modal-title" id="linkModalTitle">Add New Link</h3>
+      <input type="hidden" id="linkModalEditId">
+      <div class="form-group">
+        <label>Link Title</label>
+        <input type="text" id="linkModalTitleInput" placeholder="e.g. Vendor Payment Request Form">
+      </div>
+      <div class="form-group">
+        <label>Target URL</label>
+        <input type="text" id="linkModalUrlInput" placeholder="e.g. forms.google.com/xyz or https://…">
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="linkModalCategorySelect">
+            <option value="form">📝 Form</option>
+            <option value="platform">🌐 Platform</option>
+            <option value="report">📊 Report</option>
+            <option value="tool">⚙️ Tool</option>
+            <option value="other">🔗 Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Icon Emoji</label>
+          <input type="text" id="linkModalIconInput" placeholder="📝, 🌐, 📊, ⚙️, 🚚" value="🔗">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Target Department</label>
+        <select id="linkModalDeptSelect">
+          <option value="">🏢 Company-Wide (All Departments)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tags (Comma separated)</label>
+        <input type="text" id="linkModalTagsInput" placeholder="e.g. accounts, payments, daily">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('linkModal')">Cancel</button>
+        <button class="btn-primary" onclick="saveLinkRecord()">Save Link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. SUBMIT / EDIT IDEA MODAL -->
+  <div class="modal-overlay" id="ideaModal">
+    <div class="modal-box">
+      <h3 class="modal-title" id="ideaModalTitle">Submit Idea for Voting</h3>
+      <p class="modal-sub">Ideas with maximum department votes win the Best Idea crown!</p>
+      <input type="hidden" id="ideaModalEditId">
+
+      <div class="form-group">
+        <label>Proposing Team Member</label>
+        <select id="ideaModalSubmitterSelect" onchange="handleIdeaSubmitterChange()">
+          <!-- Injected via JS from team members -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Idea Title</label>
+        <input type="text" id="ideaModalTitleInput" placeholder="e.g. Auto-Reconcile GSTR-2B with Tally">
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label>Department Benefiting</label>
+          <select id="ideaModalDeptSelect">
+            <!-- Injected via JS -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="ideaModalCategorySelect">
+            <option value="Process Automation">🤖 Process Automation</option>
+            <option value="Company Growth">📈 Company Growth</option>
+            <option value="Cost Reduction">💰 Cost Reduction</option>
+            <option value="Quality & Speed">⚡ Quality & Speed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Detailed Description & Proposed Solution</label>
+        <textarea id="ideaModalDescInput" rows="3" placeholder="Describe the workflow improvement, tools suggested (Python, Excel, Zapier, Custom App)…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Expected Impact / Hours Saved</label>
+        <input type="text" id="ideaModalImpactInput" placeholder="e.g. Saves 15 hours/week for Accounts, reduces billing error rate">
+      </div>
+      <div class="form-group">
+        <label>Link to a Logged Bottleneck (Optional)</label>
+        <select id="ideaModalBottleneckSelect">
+          <option value="">None (Independent Idea)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tags (Comma separated)</label>
+        <input type="text" id="ideaModalTagsInput" placeholder="e.g. automation, tally, invoice">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('ideaModal')">Cancel</button>
+        <button class="btn-primary" id="ideaModalSaveBtn" onclick="saveIdeaRecord()">Submit Idea for Polling</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. REPORT BOTTLENECK MODAL (CONFIDENTIAL) -->
+  <div class="modal-overlay" id="hurdleModal">
+    <div class="modal-box">
+      <h3 class="modal-title">Report Department Bottleneck</h3>
+      <p class="modal-sub">Privately submit operational hurdles to Management. Only you and Admin will see this.</p>
+
+      <div class="form-group">
+        <label>Reporting Team Member</label>
+        <select id="hurdleModalSubmitterSelect" onchange="handleHurdleSubmitterChange()">
+          <!-- Injected via JS from team members -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Hurdle Title</label>
+        <input type="text" id="hurdleModalTitleInput" placeholder="e.g. Manual invoice verification across 3 spreadsheets">
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label>Affected Department</label>
+          <select id="hurdleModalDeptSelect">
+            <!-- Injected via JS -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Severity Level</label>
+          <select id="hurdleModalSeveritySelect">
+            <option value="Critical">🔴 Critical Blocker (Halts Daily Work)</option>
+            <option value="High" selected>🟠 High Friction (Causes 1-2 day delays)</option>
+            <option value="Medium">🟡 Medium (Tedious manual work)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Details of Friction & Current Workaround</label>
+        <textarea id="hurdleModalDetailsInput" rows="3" placeholder="Explain what causes the delay and how you are currently handling it…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Estimated Hours Lost per Week</label>
+        <input type="number" id="hurdleModalHoursInput" placeholder="e.g. 15" step="0.5">
+      </div>
+      <div class="form-group">
+        <label>Tags</label>
+        <input type="text" id="hurdleModalTagsInput" placeholder="e.g. manual, excel, gst">
+      </div>
+
+      <!-- 3 PROPOSED SOLUTIONS (MINIMUM REQUIREMENT) -->
+      <div style="background: var(--snow); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 700; color: var(--lake); text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+          <span>💡</span> 3 Proposed Solutions (Minimum Requirement)
+        </div>
+        <p style="font-size: 12px; color: var(--ink-muted); margin-bottom: 12px;">Please suggest at least 3 possible ways to solve or eliminate this obstacle:</p>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="font-size: 11px; color: var(--ink);">Solution 1 (Quick / Immediate Fix)</label>
+          <input type="text" id="hurdleModalSolution1Input" placeholder="e.g. Standardize Excel template with validation">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="font-size: 11px; color: var(--ink);">Solution 2 (Automation / Tech Fix)</label>
+          <input type="text" id="hurdleModalSolution2Input" placeholder="e.g. Build automated Python / RPA script to auto-match files">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label style="font-size: 11px; color: var(--ink);">Solution 3 (Process / Long-term Policy Change)</label>
+          <input type="text" id="hurdleModalSolution3Input" placeholder="e.g. Enforce vendor upload portal rule before payment processing">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('hurdleModal')">Cancel</button>
+        <button class="btn-primary" style="background: var(--red);" onclick="saveHurdleRecord()">Submit for Review</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. POST ANNOUNCEMENT / UPDATE MODAL -->
+  <div class="modal-overlay" id="announcementModal">
+    <div class="modal-box">
+      <h3 class="modal-title" id="announceModalTitle">Post Company Update</h3>
+      <input type="hidden" id="announceModalEditId">
+      <div class="form-group">
+        <label>Update Headline</label>
+        <input type="text" id="announceModalTitleInput" placeholder="e.g. New GST SOP active from Friday">
+      </div>
+      <div class="form-group">
+        <label>Content / Body</label>
+        <textarea id="announceModalContentInput" rows="3" placeholder="Full details of the update…"></textarea>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label>Priority Level</label>
+          <select id="announceModalPrioritySelect">
+            <option value="General">General Update</option>
+            <option value="Urgent">🚨 Urgent Notice</option>
+            <option value="Notice">Notice</option>
+            <option value="Milestone">🎉 Milestone & Celebration</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Target Department</label>
+          <select id="announceModalDeptSelect">
+            <option value="">Company-Wide (All)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+        <input type="checkbox" id="announceModalPinnedCheckbox" style="width: auto; cursor: pointer;">
+        <label for="announceModalPinnedCheckbox" style="margin: 0; cursor: pointer; text-transform: none; font-size: 13.5px;">Pin as Top Sticky Banner Ticker</label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('announcementModal')">Cancel</button>
+        <button class="btn-primary" id="announceModalSaveBtn" onclick="saveAnnouncementRecord()">Publish Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. ADD TEAM MEMBER MODAL -->
+  <div class="modal-overlay" id="memberModal">
+    <div class="modal-box">
+      <h3 class="modal-title" id="memberModalTitle">Add Team Member</h3>
+      <input type="hidden" id="memberModalEditId">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="memberModalNameInput" placeholder="e.g. Anita Sharma">
+      </div>
+      <div class="form-group">
+        <label>Department</label>
+        <select id="memberModalDeptSelect">
+          <!-- Injected via JS -->
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Job Title / Role</label>
+        <input type="text" id="memberModalRoleInput" placeholder="e.g. Accounts Executive">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('memberModal')">Cancel</button>
+        <button class="btn-primary" id="memberModalSaveBtn" onclick="saveMemberRecord()">Save Member</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. ADD / EDIT ADMIN PASSWORD & ROLES MODAL -->
+  <div class="modal-overlay" id="adminPasswordModal">
+    <div class="modal-box" style="max-width: 480px;">
+      <h3 class="modal-title" id="adminPassModalTitle">Create Another Admin Passkey</h3>
+      <p class="modal-sub">Authorize administrator passwords with granular module permissions.</p>
+      <input type="hidden" id="adminPassModalEditId">
+
+      <div class="form-group">
+        <label>Admin Name / Label</label>
+        <input type="text" id="adminPassModalNameInput" placeholder="e.g. Accounts Admin, Hemlata (Operations)">
+      </div>
+      <div class="form-group">
+        <label id="adminPassModalPassLabel">New Admin Password</label>
+        <input type="password" id="adminPassModalPassInput" placeholder="Minimum 4 characters">
+        <span id="adminPassModalPassHelp" style="display: none; font-size: 11px; color: var(--ink-muted); margin-top: 4px;">Leave blank to retain current password.</span>
+      </div>
+
+      <!-- MODULE PERMISSIONS MATRIX -->
+      <div class="form-group">
+        <label style="margin-bottom: 8px;">Authorized Admin Modules</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; background: var(--snow); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+          <label style="display: flex; align-items: center; gap: 6px; text-transform: none; font-weight: normal; margin: 0; cursor: pointer;">
+            <input type="checkbox" id="perm_links" value="links" checked style="width: auto;"> 🔗 Links Directory
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; text-transform: none; font-weight: normal; margin: 0; cursor: pointer;">
+            <input type="checkbox" id="perm_announcements" value="announcements" checked style="width: auto;"> 📢 Company Updates
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; text-transform: none; font-weight: normal; margin: 0; cursor: pointer;">
+            <input type="checkbox" id="perm_polls" value="polls" checked style="width: auto;"> 🗳️ Ideas & Polling
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; text-transform: none; font-weight: normal; margin: 0; cursor: pointer;">
+            <input type="checkbox" id="perm_bottlenecks" value="bottlenecks" checked style="width: auto;"> 🚧 Bottlenecks Review
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; text-transform: none; font-weight: normal; margin: 0; cursor: pointer;">
+            <input type="checkbox" id="perm_roster" value="roster" checked style="width: auto;"> 👥 Team Directory
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; text-transform: none; font-weight: normal; margin: 0; cursor: pointer;">
+            <input type="checkbox" id="perm_departments" value="departments" checked style="width: auto;"> 🏢 Departments
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; text-transform: none; font-weight: normal; margin: 0; cursor: pointer; grid-column: span 2; border-top: 1px dashed var(--border); padding-top: 6px; margin-top: 2px;">
+            <input type="checkbox" id="perm_passwords" value="passwords" style="width: auto;"> 🔑 Admin Passwords & Roles
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('adminPasswordModal')">Cancel</button>
+        <button class="btn-primary" id="adminPassModalSaveBtn" onclick="saveAdminPasswordRecord()">Save Admin Passkey</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. START NEW POLL MODAL -->
+  <div class="modal-overlay" id="startPollModal">
+    <div class="modal-box">
+      <h3 class="modal-title">Start New Innovation Poll</h3>
+      <div class="form-group">
+        <label>Poll Title</label>
+        <input type="text" id="pollModalTitleInput" placeholder="e.g. Q4 2026 Process Automation Poll">
+      </div>
+      <div class="form-group">
+        <label>Description / Guidelines</label>
+        <textarea id="pollModalDescInput" rows="3" placeholder="Describe the focus of this voting cycle…"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('startPollModal')">Cancel</button>
+        <button class="btn-primary" onclick="saveStartPollRecord()">Start Active Poll</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. ADD / EDIT DEPARTMENT MODAL -->
+  <div class="modal-overlay" id="departmentModal">
+    <div class="modal-box" style="max-width: 440px;">
+      <h3 class="modal-title" id="deptModalTitle">Add Department</h3>
+      <input type="hidden" id="deptModalEditId">
+      <div class="form-group">
+        <label>Department Name</label>
+        <input type="text" id="deptModalNameInput" placeholder="e.g. Purchase & Procurement">
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label>Short Code</label>
+          <input type="text" id="deptModalCodeInput" placeholder="e.g. PUR">
+        </div>
+        <div class="form-group">
+          <label>Icon Emoji</label>
+          <input type="text" id="deptModalIconInput" placeholder="📦, 🔍, 🏭, 🎧" value="🏢">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Theme Color</label>
+        <input type="color" id="deptModalColorInput" value="#2A6FA8" style="height: 42px; padding: 4px; cursor: pointer;">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('departmentModal')">Cancel</button>
+        <button class="btn-primary" id="deptModalSaveBtn" onclick="saveDepartmentRecord()">Save Department</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. ADMIN BOTTLENECK REVIEW MODAL -->
+  <div class="modal-overlay" id="reviewBottleneckModal">
+    <div class="modal-box" style="max-width: 540px;">
+      <h3 class="modal-title">Review Operational Bottleneck</h3>
+      <p class="modal-sub" id="reviewModalSubtitle">Hurdle reported by Team Member</p>
+      <input type="hidden" id="reviewModalBottleneckId">
+
+      <div style="background: var(--snow); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+        <div style="font-weight: 700; font-size: 15px; margin-bottom: 4px;" id="reviewModalTitleDisplay">Title</div>
+        <div style="font-size: 12.5px; color: var(--ink-muted); margin-bottom: 10px;" id="reviewModalMetaDisplay">Dept • Reporter • Severity</div>
+        <div style="font-size: 13px; line-height: 1.5;" id="reviewModalDetailsDisplay">Details</div>
+
+        <div style="margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 10px;">
+          <div style="font-size: 11.5px; font-weight: 700; color: var(--lake); text-transform: uppercase; margin-bottom: 6px;">3 Proposed Solutions:</div>
+          <div style="font-size: 12px; margin-bottom: 4px;"><b>1. Quick Fix:</b> <span id="reviewModalSol1Display"></span></div>
+          <div style="font-size: 12px; margin-bottom: 4px;"><b>2. Automation Fix:</b> <span id="reviewModalSol2Display"></span></div>
+          <div style="font-size: 12px;"><b>3. Process Fix:</b> <span id="reviewModalSol3Display"></span></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Update Status</label>
+        <select id="reviewModalStatusSelect">
+          <option value="Under Review">⏳ Under Review (Initial Stage)</option>
+          <option value="In Discussion">💬 In Discussion (Assigned to Team)</option>
+          <option value="Solution Linked">💡 Solution Linked (Idea Proposed)</option>
+          <option value="Resolved">✅ Resolved (Obstacle Eliminated)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Admin Review Note / Action Plan (Visible to Submitter)</label>
+        <textarea id="reviewModalNotesInput" rows="3" placeholder="e.g. Approved. Assigned Aman from IT to automate the GSTR-2B sync by next Friday…"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('reviewBottleneckModal')">Cancel</button>
+        <button class="btn-primary" onclick="saveBottleneckReviewRecord()">Save Review & Feedback</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. PERSONAL WINDOW LOGIN MODAL -->
+  <div class="modal-overlay" id="personalLoginModal">
+    <div class="modal-box" style="max-width: 440px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="width: 56px; height: 56px; margin: 0 auto 12px; background: #EFF6FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 1.5px solid #BFDBFE;">👤</div>
+        <h3 class="modal-title" style="font-size: 20px;">Unlock Personal Window</h3>
+        <p class="modal-sub" style="margin-bottom: 0;">Confidential access to your private bottlenecks, assigned KPI links, and pitched ideas.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Select Your Name</label>
+        <select id="personalLoginMemberSelect" onchange="onPersonalLoginMemberChange()">
+          <!-- Injected via JS -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label style="margin: 0;">Personal Passkey / PIN</label>
+          <span style="font-size: 11.5px; color: var(--ink-muted);">Default: <b style="color: var(--lake);">1234</b></span>
+        </div>
+        <div style="position: relative;">
+          <input type="password" id="personalLoginPassInput" placeholder="Enter your 4-digit PIN" style="padding-right: 42px;" onkeydown="if(event.key==='Enter') executePersonalLogin()">
+          <button type="button" onclick="togglePassInputVisibility('personalLoginPassInput', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; color: var(--ink-muted);" title="Toggle PIN visibility">👁️</button>
+        </div>
+      </div>
+
+      <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 18px; font-size: 12px; color: #166534; display: flex; align-items: flex-start; gap: 8px; line-height: 1.4;">
+        <span style="font-size: 14px; margin-top: 1px;">🔒</span>
+        <span>Your reported bottlenecks and private KPI links are protected and visible only to you and management.</span>
+      </div>
+
+      <div class="modal-actions" style="display: flex; justify-content: space-between;">
+        <button class="btn-secondary" onclick="closeModal('personalLoginModal')">Cancel</button>
+        <button class="btn-primary" onclick="executePersonalLogin()">Unlock Personal Space →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. UNLOCKED PERSONAL WINDOW MODAL (MULTI-TAB) -->
+  <div class="modal-overlay" id="personalWindowModal">
+    <div class="modal-box personal-window-box" style="max-width: 760px; padding: 0; overflow: hidden;">
+      <!-- Profile Header Banner -->
+      <div class="personal-header-banner">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div class="personal-banner-avatar" id="pBannerAvatar">R</div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 style="margin: 0; font-size: 18px; color: white; font-family: var(--font-head);" id="pBannerName">Rahul Sharma</h3>
+              <span class="badge" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); font-size: 11px;" id="pBannerDept">Accounts & Finance</span>
+            </div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 2px;" id="pBannerRole">Senior Accounts Executive</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="btn-personal-lock" onclick="lockPersonalWindow()" title="Lock session & clear authentication">
+            <span>🔒</span> Lock & Exit
+          </button>
+          <button class="btn-modal-close-light" onclick="closeModal('personalWindowModal')" title="Close window">✕</button>
+        </div>
+      </div>
+
+      <!-- SELECTION NOTIFICATION ALERT BANNER -->
+      <div id="pSelectionAlertBanner" style="display: none; background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-bottom: 1.5px solid #F59E0B; padding: 12px 24px; color: #92400E; display: none; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">🏆</span>
+          <div>
+            <div style="font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em;">Idea Selected for Implementation!</div>
+            <div style="font-size: 12.5px;" id="pSelectionAlertText">Congratulations! Your idea has been chosen by leadership.</div>
+          </div>
+        </div>
+        <button class="btn-primary" style="background: #B45309; border: none; font-size: 11.5px; padding: 4px 10px;" onclick="switchPersonalTab('pTabIdeas', document.getElementById('pTabBtnIdeas'))">View in Ideas →</button>
+      </div>
+
+      <!-- Personal Tab Navigation (3 Clean Tabs - No Scrollbar) -->
+      <div class="personal-tab-nav">
+        <button class="p-tab-btn active" id="pTabBtnBottlenecks" onclick="switchPersonalTab('pTabBottlenecks', this)">
+          🚧 Bottlenecks & Hurdles <span class="p-tab-badge" id="pTabBottlenecksBadge">0</span>
+        </button>
+        <button class="p-tab-btn" id="pTabBtnLinks" onclick="switchPersonalTab('pTabLinks', this)">
+          🔗 My Private Links <span class="p-tab-badge" id="pTabLinksBadge">0</span>
+        </button>
+        <button class="p-tab-btn" id="pTabBtnIdeas" onclick="switchPersonalTab('pTabIdeas', this)">
+          💡 Department Ideas & Voting <span class="p-tab-badge" id="pTabIdeasBadge">0</span>
+        </button>
+      </div>
+
+      <div style="padding: 22px 26px 28px; max-height: 520px; overflow-y: auto;">
+        <!-- TAB 1: CONFIDENTIAL BOTTLENECKS -->
+        <div id="pTabBottlenecks" class="p-tab-pane active">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+              <h4 style="font-size: 16px; margin: 0 0 2px;">Confidential Operational Bottlenecks</h4>
+              <p style="font-size: 12.5px; color: var(--ink-muted); margin: 0;">Live tracking of hurdles submitted by you with leadership action plans.</p>
+            </div>
+            <button class="btn-primary" style="background: var(--red); font-size: 12.5px; padding: 7px 14px;" onclick="closeModal('personalWindowModal'); openReportHurdleModal();">+ Report Hurdle</button>
+          </div>
+          <div id="myBottlenecksList" style="display: flex; flex-direction: column; gap: 14px;">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- TAB 2: MY PERSONAL PRIVATE LINKS -->
+        <div id="pTabLinks" class="p-tab-pane" style="display: none;">
+          <div style="margin-bottom: 16px;">
+            <h4 style="font-size: 16px; margin: 0 0 2px;">Assigned KPI Sheets & Private Links</h4>
+            <p style="font-size: 12.5px; color: var(--ink-muted); margin: 0;">Confidential documents, sheets, and department platforms assigned directly to you.</p>
+          </div>
+          <div id="myPersonalLinksList" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- TAB 3: DEPARTMENT IDEAS & VOTING POLL -->
+        <div id="pTabIdeas" class="p-tab-pane" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+              <h4 style="font-size: 16px; margin: 0 0 2px;">Department Innovation Ideas & Voting Poll</h4>
+              <p style="font-size: 12.5px; color: var(--ink-muted); margin: 0;">Confidential to your department. Pitch ideas, vote when poll is open, and track implementation choices.</p>
+            </div>
+            <button class="btn-primary" style="font-size: 12.5px; padding: 7px 14px;" onclick="openSubmitDeptIdeaModal()">+ Pitch Idea for My Dept</button>
+          </div>
+          <div id="myPersonalIdeasList" style="display: flex; flex-direction: column; gap: 14px;">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Bar -->
+      <div style="padding: 12px 26px; background: var(--snow); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 12px; color: var(--ink-muted);">🔐 Session active for <b id="pFooterMemberName">Rahul Sharma</b></span>
+        <button class="btn-secondary" onclick="closeModal('personalWindowModal')">Close Window</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. ADMIN: MANAGE MEMBER PASSKEY & PERSONAL LINKS MODAL -->
+  <div class="modal-overlay" id="adminMemberCredsModal">
+    <div class="modal-box" style="max-width: 560px;">
+      <h3 class="modal-title">Manage Member Passkey & Links</h3>
+      <p class="modal-sub" id="adminCredsSubTitle">Configure employee PIN and assign personal KPI resources.</p>
+      <input type="hidden" id="adminCredsMemberId">
+
+      <div style="background: var(--snow); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 700; font-size: 14px;" id="adminCredsMemberName">Employee Name</div>
+          <div style="font-size: 12px; color: var(--ink-muted);" id="adminCredsMemberMeta">Accounts • Senior Executive</div>
+        </div>
+        <button class="btn-copy-direct-link" id="adminCredsDirectLinkBtn" onclick="copyCredsModalDirectLink()">
+          <span>📋</span> Copy Direct URL
+        </button>
+      </div>
+
+      <!-- Personal PIN Reset -->
+      <div class="form-group">
+        <label>Personal Passkey / PIN</label>
+        <div style="position: relative;">
+          <input type="text" id="adminCredsPinInput" placeholder="e.g. 1234">
+          <span style="font-size: 11px; color: var(--ink-muted); margin-top: 4px; display: block;">You can set or reset the employee's passkey directly.</span>
+        </div>
+      </div>
+
+      <!-- Personal Private Links Manager -->
+      <div class="form-group" style="margin-bottom: 8px;">
+        <label>Assigned Private Documents & Links</label>
+        <div id="adminCredsLinksList" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-bottom: 12px;">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Add Link Row -->
+        <div style="background: #F8FAFC; border: 1.5px dashed var(--border); border-radius: var(--radius-sm); padding: 12px;">
+          <div style="font-size: 11.5px; font-weight: 700; color: var(--lake); text-transform: uppercase; margin-bottom: 8px;">+ Attach Private Link / File</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <input type="text" id="adminCredsNewTitleInput" placeholder="Link Title (e.g. Q3 KPI Tracker)" style="font-size: 12.5px; padding: 7px 10px;">
+            <input type="text" id="adminCredsNewUrlInput" placeholder="URL (e.g. https://sheets.google...)" style="font-size: 12.5px; padding: 7px 10px;">
+          </div>
+          <button type="button" class="btn-secondary" style="font-size: 12px; padding: 5px 12px; width: 100%;" onclick="addAdminCredsLinkRow()">+ Add Link to Member</button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('adminMemberCredsModal')">Cancel</button>
+        <button class="btn-primary" onclick="saveAdminMemberCredsRecord()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. APPRECIATION ENGINE: CELEBRATION MODAL + CONFETTI -->
+  <div class="modal-overlay" id="appreciationModal">
+    <div class="modal-box celebration-box" style="max-width: 480px; text-align: center; position: relative; overflow: hidden;">
+      <canvas id="confettiCanvas" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 1;"></canvas>
+
+      <div style="position: relative; z-index: 2;">
+        <div class="celebration-trophy">🏆</div>
+        <div class="celebration-badge" id="appreciationBadge">INNOVATION EXCELLENCE</div>
+        <h3 class="celebration-title" id="appreciationTitle">Outstanding Contribution!</h3>
+        <p class="celebration-sub" id="appreciationMessage">Congratulations to the team for driving innovation forward!</p>
+
+        <div class="celebration-card" id="appreciationCard">
+          <div class="celebration-idea-title" id="appreciationIdeaTitle">Auto-Reconcile GSTR-2B with Tally</div>
+          <div class="celebration-author-row">
+            <span id="appreciationAuthor">Rahul Sharma</span> • <span id="appreciationDept">Accounts & Finance</span>
+          </div>
+        </div>
+
+        <div class="celebration-reactions">
+          <button class="btn-clap" onclick="sendKudosClap('👏')">👏 Applaud</button>
+          <button class="btn-clap" onclick="sendKudosClap('🚀')">🚀 High Impact</button>
+          <button class="btn-clap" onclick="sendKudosClap('❤️')">❤️ Great Work</button>
+        </div>
+
+        <button class="btn-primary" style="width: 100%; margin-top: 16px;" onclick="closeModal('appreciationModal')">Continue Exploring Teamsaathi →</button>
+      </div>
+    </div>
+  <!-- 14. DEPARTMENT LINK PIN UNLOCK MODAL -->
+  <div class="modal-overlay" id="deptLinkPinModal">
+    <div class="modal-box" style="max-width: 420px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div class="brand-crest" style="margin: 0 auto 12px; width: 50px; height: 50px; font-size: 24px; background: #EFF6FF; border-color: #BFDBFE;">🔒</div>
+        <h3 class="modal-title" id="deptLinkPinModalTitle">Unlock Department Links</h3>
+        <p class="modal-sub" id="deptLinkPinModalSub">These resources are confidential to this department. Enter your 4-digit personal PIN to view.</p>
+      </div>
+      <input type="hidden" id="deptLinkPinDeptId">
+      <div class="form-group">
+        <label>4-Digit Department Member PIN</label>
+        <div style="position: relative;">
+          <input type="password" id="deptLinkPinInput" placeholder="Enter 4-digit PIN…" maxlength="8" style="padding-right: 44px; font-size: 16px; letter-spacing: 2px;" onkeydown="if(event.key==='Enter') executeDeptLinkUnlock()">
+          <button type="button" onclick="toggleDeptLinkPinVisibility()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: transparent; cursor: pointer; font-size: 16px; color: var(--ink-muted);" id="deptLinkPinEyeBtn">👁️</button>
+        </div>
+      </div>
+      <div class="modal-actions" style="flex-direction: column; gap: 8px;">
+        <button class="btn-primary" style="width: 100%; padding: 12px;" onclick="executeDeptLinkUnlock()">Unlock Links ➔</button>
+        <button class="btn-secondary" style="width: 100%;" onclick="closeModal('deptLinkPinModal')">Cancel</button>
+      </div>
+      <p style="text-align: center; font-size: 11.5px; color: var(--ink-muted); margin-top: 10px;">Default Member PIN: <b>1234</b> (Check with Admin or Personal Window)</p>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
